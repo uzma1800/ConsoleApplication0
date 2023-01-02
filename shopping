@@ -1,0 +1,111 @@
+#include <iostream>
+#include <omp.h>
+#include<stdlib.h>
+int main()
+{
+#define NUM_THREADS 4
+	int sum = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0;
+	double start = omp_get_wtime();
+	printf("Enter the items in clothing \n");
+	//	const int c1 = 50, c2 = 30, c3 = 55, c4 = 100;
+	const int c1 = 5, c2 = 6, c3 = 7, c4 = 8;
+	int clo[c1];
+	printf("Clothing : ");
+	for (int i = 0; i <= c1; i++) {
+		//		clo[i] = rand() % 1000;
+		clo[i] = 5;
+		printf("%d \n", clo[i]);
+	}
+	printf("grocery ");
+	int	gro[c2];
+	for (int i = 0; i <= c2; i++) {
+		//		gro[i] = rand() % 100;
+		gro[i] = 6;
+		printf("%d \n", gro[i]);
+
+	}
+	printf("Stationery ");
+	int sta[c3];
+	for (int i = 0; i <= c3; i++) {
+		//		sta[i] = rand() % 50;
+		sta[i] = 7;
+		printf("%d \n", sta[i]);
+
+	}
+	printf("Gaming : ");
+	int gam[c4];
+	for (int i = 0; i <= c4; i++) {
+		//		gam[i] = rand() % 1000;
+		gam[i] = 8;
+		printf("%d \n", gam[i]);
+	}
+#pragma omp parallel firstprivate (sum1, sum2, sum3, sum4)
+	{
+		for (int i = 0; i <= c1; i++) {
+			sum1 += clo[i];
+
+		}
+		for (int i = 0; i <= c2; i++) {
+			sum2 += gro[i];
+
+		}
+		for (int i = 0; i <= c3; i++) {
+			sum3 += sta[i];
+
+		}
+		for (int i = 0; i <= c4; i++) {
+			sum4 += gam[i];
+		}
+
+
+      #pragma omp critical
+		{
+
+			int sumi = sum1 + sum2 + sum3 + sum4;
+			sum += sumi;
+			printf(" Thread id  %d, sum1 = %d, sum2 = %d, sum3 = %d, sum4 = %d , threadsum = %d \n", omp_get_thread_num(), sum1, sum2, sum3, sum4, sumi );
+		}
+	}
+	printf("  sum of all thread sums = %d \n", sum);
+
+}
+
+
+
+
+Enter the items in clothing
+Clothing : 5
+5
+5
+5
+5
+5
+grocery 6
+6
+6
+6
+6
+6
+6
+Stationery 7
+7
+7
+7
+7
+7
+7
+7
+Gaming : 8
+8
+8
+8
+8
+8
+8
+8
+8
+ Thread id  0, sum1 = 30, sum2 = 42, sum3 = 56, sum4 = 72 , threadsum = 200
+ Thread id  2, sum1 = 30, sum2 = 42, sum3 = 56, sum4 = 72 , threadsum = 200
+ Thread id  3, sum1 = 30, sum2 = 42, sum3 = 56, sum4 = 72 , threadsum = 200
+ Thread id  1, sum1 = 30, sum2 = 42, sum3 = 56, sum4 = 72 , threadsum = 200
+  sum of all thread sums = 800
