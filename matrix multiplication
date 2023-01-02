@@ -1,68 +1,132 @@
-#include <iostream>
-#include <omp.h>
+#include <stdio.h> 
+#include <omp.h> 
+#include <stdlib.h> 
+#pragma warning 
+ 
+/* Main Program */ 
+ 
+int main() 
+{ 
+int             NoofRows, NoofCols, Vectorsize, i, j; float         **Matrix, *Vector, *Result, *Checkoutput; 
+ 
+printf("Read the matrix size noofrows and columns and vectorsize\n"); scanf_s("%d%d%d", &NoofRows, &NoofCols, &Vectorsize); 
+ 
+if (NoofRows <= 0 || NoofCols <= 0 || Vectorsize <= 0) { printf("The Matrix and Vectorsize should be of positive sign\n"); exit(1); 
+} 
+/* Checking For Matrix Vector Computation Necessary Condition */ 
+ 
+if (NoofCols != Vectorsize) { printf("Matrix Vector computation cannot be possible \n"); exit(1); 
+} 
+/* Dynamic Memory Allocation  And Initialization Of Matrix Elements */ 
+ 
+Matrix = (float **)malloc(sizeof(float) * NoofRows); for (i = 0; i < NoofRows; i++) { 
+Matrix[i] = (float *)malloc(sizeof(float) * NoofCols); for (j = 0; j < NoofCols; j++) 
+Matrix[i][j] = i + j; 
+} 
+ 
+/* Printing The Matrix */ 
+ 
+printf("The Matrix is \n"); for (i = 0; i < NoofRows; i++) { for (j = 0; j < NoofCols; j++) printf("%f \t", Matrix[i][j]); printf("\n"); 
+} 
+ 
+printf("\n"); 
+ 
+/* Dynamic Memory Allocation */ 
+ 
+Vector = (float *)malloc(sizeof(float) * Vectorsize); 
+ 
+/* vector Initialization */ 
+ 
+for (i = 0; i < Vectorsize; i++) 
+Vector[i] = i; 
+ 
+printf("\n"); 
+ 
+/* Printing The Vector Elements */ 
+ 
+printf("The Vector is \n"); for (i = 0; i < Vectorsize; i++) printf("%f \t", Vector[i]); 
+ 
+/* Dynamic Memory Allocation */ 
+ 
+Result = (float *)malloc(sizeof(float) * NoofRows); 
+ 
+Checkoutput = (float *)malloc(sizeof(float) * NoofRows); 
+ 
+for (i = 0; i < NoofRows; i = i + 1) 
+{ 
+Result[i] = 0; 
+Checkoutput[i] = 0; 
+} 
+ 
+/* OpenMP Parallel Directive */ 
+ 
+#pragma omp parallel for private(j) for (i = 0; i < NoofRows; i = i + 1) for (j = 0; j < NoofCols; j = j + 1) 
+Result[i] = Result[i] + Matrix[i][j] * Vector[j]; 
+ 
+/* Serial Computation */ 
+ 
+for (i = 0; i < NoofRows; i = i + 1) for (j = 0; j < NoofCols; j = j + 1) 
+Checkoutput[i] = Checkoutput[i] + Matrix[i][j] * Vector[j]; 
+ 
+for (i = 0; i < NoofRows; i = i + 1) if (Checkoutput[i] == Result[i]) continue; else { printf("There is a difference from Serial and Parallel Computation \n"); exit(1); 
+} 
+ 
+ 
+printf("\nThe Matrix Computation result is \n"); for (i = 0; i < NoofRows; i++) printf("%f \n", Result[i]); 
+ 
+/* Freeing The Memory Allocations */ 
+ 
+free(Vector); free(Result); free(Matrix); free(Checkoutput); 
+
+} 
+
+//NEW program 
+#include<stdio.h>
 #include<stdlib.h>
-int main()
-{
-#define NUM_THREADS 4
-	int sum = 0, sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0;
-	double start = omp_get_wtime();
-	printf("Enter the items in clothing \n");
-	//	const int c1 = 50, c2 = 30, c3 = 55, c4 = 100;
-	const int c1 = 5, c2 = 6, c3 = 7, c4 = 8;
-	int clo[c1];
-	printf("Clothing : ");
-	for (int i = 0; i <= c1; i++) {
-		clo[i] = rand() % 50;
-		printf("%d \n", clo[i]);
+#include<omp.h>
+void main() {
+	int m,n;
+	printf("Enter the size of square matrix : ");
+	scanf_s("%d",&n);
+	printf("Enter the size of vector : ");
+	scanf_s("%d", &m);
+	if (m!=n) {
+		printf("Multiplication is not possible.\n");
+		exit(0);
 	}
-	printf("grocery ");
-	int	gro[c2];
-	for (int i = 0; i <= c2; i++) {
-		gro[i] = rand() % 50;
-		printf("%d \n", gro[i]);
-
-	}
-	printf("Stationery ");
-	int sta[c3];
-	for (int i = 0; i <= c3; i++) {
-				sta[i] = rand() % 50;
-		//sta[i] = 7;
-		printf("%d \n", sta[i]);
-
-	}
-	printf("Gaming : ");
-	int gam[c4];
-	for (int i = 0; i <= c4; i++) {
-		gam[i] = rand() % 50;
-		printf("%d \n", gam[i]);
-	}
-#pragma omp parallel firstprivate (sum1, sum2, sum3, sum4)
+	int i=0,j=0;
+	int **arr=(int**)malloc(n*sizeof(int*));
+	int *vec=(int*)malloc(n*sizeof(int));
+	int *res=(int*)malloc(n*sizeof(int));
+	omp_set_num_threads(n);
+	#pragma omp parallel private(j)
 	{
-		for (int i = 0; i <= c1; i++) {
-			sum1 += clo[i];
-
-		}
-		for (int i = 0; i <= c2; i++) {
-			sum2 += gro[i];
-
-		}
-		for (int i = 0; i <= c3; i++) {
-			sum3 += sta[i];
-
-		}
-		for (int i = 0; i <= c4; i++) {
-			sum4 += gam[i];
-		}
-
-
-#pragma omp critical
-		{
-
-			int sumi = sum1 + sum2 + sum3 + sum4;
-			sum += sumi;
-			printf(" Thread id  %d, sum1 = %d, sum2 = %d, sum3 = %d, sum4 = %d , threadsum = %d \n", omp_get_thread_num(), sum1, sum2, sum3, sum4, sumi);
+		#pragma omp for
+		for (i=0;i<n;i++) {
+			srand(i);
+			arr[i]=(int*)malloc(n*sizeof(int));
+			vec[i]=rand()%100;
+			for (j=0;j<n;j++)
+				arr[i][j]=rand()%100;
 		}
 	}
-	printf("  sum of all thread sums = %d \n", sum);
-
+	#pragma omp parallel private(j)
+	{
+		#pragma omp for
+		for(i=0;i<n;i++) {
+			res[i]=0;
+			for(j=0;j<n;j++)
+				res[i]+=arr[i][j]*vec[j];
+		}
+	}
+	printf("Matrix * Vector = Resultant Matrix\n");
+	for(i=0;i<n;i++) {
+		for(j=0;j<n;j++)
+			printf("%3d ",arr[i][j]);
+		if(i==n/2)
+			printf("  *  %3d  = %6d\n",vec[i],res[i]);
+		else
+			printf("     %3d    %6d\n",vec[i],res[i]);
+	}
 }
+///////////////////////////////////////////////
