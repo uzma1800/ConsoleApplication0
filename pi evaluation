@@ -1,91 +1,20 @@
-#include <omp.h> 
-#include <stdio.h> 
-#include <stdlib.h> 
-#define MAX_THREADS 2 
- 
-static long steps = 1000000000; double step; 
- 
-int main(int argc, const char *argv[]) { 
-int i , j;
-double x; 
-double pi,
-double start; double delta; 
-double sum=0.0;
-
-step = 1.0 / (double)steps; 
- 
-// Compute parallel compute times for 1-MAX_THREADS 
-
-for (j = 1; j <= MAX_THREADS; j++) {  
-printf(" running on %d threads: ", j); 
- 
-// This is the beginning of a single PI computation omp_set_num_threads(j); 
- 
-sum = 0.0; 
-double start = omp_get_wtime();
-#pragma omp parallel for reduction(+:sum) private(x) 
-for (i = 0; i < steps; i++) { 
-x = (i + 0.5)*step; 
-sum += 4.0 / (1.0 + x * x); 
-} 
- 
-// Out of the parallel region, finialize computation 
-pi = step * sum; 
-delta = omp_get_wtime() - start; 
-printf("PI = %.16g computed in %.4g seconds\n", pi, delta); 
- 
-} 
- 
- 
-} 
-
-// WORKING SNPPED PARALLEL
-#include <omp.h>
-#include <stdio.h>
-#define NUM_THREADS 4
-static long num_steps = 100000; 
-double step;
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+#include<omp.h>
 void main() {
-	int i; 
-	double x, pi, sum[NUM_THREADS];
-	step = 1.0 / (double)num_steps;
-#pragma omp parallel private ( i, x )
-	{
-		int id = omp_get_thread_num();
-		for (i = id, sum[id] = 0.0; i < num_steps; i = i + NUM_THREADS)
-		{
-			x = (i + 0.5) * step;
-			sum[id] += 4.0 / (1.0 + x * x);
-		}
+	int num = 1000000, i;
+	time_t st, et;
+	st = clock();
+	double step = 1.0 / (double)num, pi = 0.0;
+	omp_set_num_threads(num);
+#pragma omp parallel for reduction(+:pi)
+	for (i = 0; i < num; i++) {
+		double x = (i + 0.5) * step;
+		double local_pi = (4.0 * step) / (1 + x * x);
+		pi += local_pi;
 	}
-	for (i = 1; i < NUM_THREADS; i++)
-		sum[0] += sum[i]; 
-		pi = sum[0] / num_steps;
-		printf("pi = %6.12f\n", pi);
-
-
-/* Serial Code */
-static long num_steps1 = 100000;
-double step1;
-
-	//int i;
-	double x1, pi1, sum1 = 0.0;
-	step1 = 1.0 / (double)num_steps1;
-	for (i = 1; i <= num_steps1; i++) {
-		x1 = (i - 0.5) * step1;
-		sum1 = sum1 + 4.0 / (1.0 + x1 * x1);
-	}
-	pi1 = sum1 / num_steps1;
-	printf("pi = %6.12f\n", pi1);
-
-	if (pi1 == pi) {
-		printf("BOTH ARE SAME\n");
-	}
-	else
-		printf("NOT SAME");
+	et = clock();
+	printf("Time Taken : %lf\n", (double)((double)(et - st) / CLOCKS_PER_SEC));
+	printf("Value of Pi = %lf\n", pi);
 }
-
-// TILL HERE
- 
-On RHS, check diagnostic tool, check process Memory and CPU  running on 1 threads: PI = 3.141592653589971 computed in 7.81 seconds running on 2 threads: PI = 3.141592653589971 computed in 7.682 seconds 
-
