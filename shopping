@@ -12,31 +12,28 @@ int main()
 	int clo[c1];
 	printf("Clothing : ");
 	for (int i = 0; i <= c1; i++) {
-		//		clo[i] = rand() % 1000;
-		clo[i] = 5;
+		clo[i] = rand() % 50;
 		printf("%d \n", clo[i]);
 	}
 	printf("grocery ");
 	int	gro[c2];
 	for (int i = 0; i <= c2; i++) {
-		//		gro[i] = rand() % 100;
-		gro[i] = 6;
+		gro[i] = rand() % 50;
 		printf("%d \n", gro[i]);
 
 	}
 	printf("Stationery ");
 	int sta[c3];
 	for (int i = 0; i <= c3; i++) {
-		//		sta[i] = rand() % 50;
-		sta[i] = 7;
+				sta[i] = rand() % 50;
+		//sta[i] = 7;
 		printf("%d \n", sta[i]);
 
 	}
 	printf("Gaming : ");
 	int gam[c4];
 	for (int i = 0; i <= c4; i++) {
-		//		gam[i] = rand() % 1000;
-		gam[i] = 8;
+		gam[i] = rand() % 50;
 		printf("%d \n", gam[i]);
 	}
 #pragma omp parallel firstprivate (sum1, sum2, sum3, sum4)
@@ -58,12 +55,12 @@ int main()
 		}
 
 
-      #pragma omp critical
+#pragma omp critical
 		{
 
 			int sumi = sum1 + sum2 + sum3 + sum4;
 			sum += sumi;
-			printf(" Thread id  %d, sum1 = %d, sum2 = %d, sum3 = %d, sum4 = %d , threadsum = %d \n", omp_get_thread_num(), sum1, sum2, sum3, sum4, sumi );
+			printf(" Thread id  %d, sum1 = %d, sum2 = %d, sum3 = %d, sum4 = %d , threadsum = %d \n", omp_get_thread_num(), sum1, sum2, sum3, sum4, sumi);
 		}
 	}
 	printf("  sum of all thread sums = %d \n", sum);
@@ -71,41 +68,40 @@ int main()
 }
 
 
-
-
-Enter the items in clothing
-Clothing : 5
-5
-5
-5
-5
-5
-grocery 6
-6
-6
-6
-6
-6
-6
-Stationery 7
-7
-7
-7
-7
-7
-7
-7
-Gaming : 8
-8
-8
-8
-8
-8
-8
-8
-8
- Thread id  0, sum1 = 30, sum2 = 42, sum3 = 56, sum4 = 72 , threadsum = 200
- Thread id  2, sum1 = 30, sum2 = 42, sum3 = 56, sum4 = 72 , threadsum = 200
- Thread id  3, sum1 = 30, sum2 = 42, sum3 = 56, sum4 = 72 , threadsum = 200
- Thread id  1, sum1 = 30, sum2 = 42, sum3 = 56, sum4 = 72 , threadsum = 200
-  sum of all thread sums = 800
+////////////////////
+/* NEW CODE
+#include<stdio.h>
+#include<stdlib.h>
+#include<omp.h>
+void main() {
+    int r,i,ans=0;
+    printf("Enter number of sections : ");
+    scanf_s("%d",&r);
+    int **arr=(int**)malloc(r*sizeof(int*));
+    int *size=(int*)malloc(r*sizeof(int));
+    omp_set_num_threads(r);
+	#pragma omp parallel
+    {
+        #pragma omp for
+        for (i=0;i<r;i++) {
+            srand(i);
+            int j,sum=0;
+            size[i]=rand()%20;
+		    arr[i]=(int*)malloc(size[i]*sizeof(int));
+		    for (j=0;j<size[i];j++) {
+			    arr[i][j]=rand()%100;
+                sum+=arr[i][j];
+            }
+            #pragma omp critical
+                ans+=sum;
+	    }
+    }
+    for(i=0;i<r;i++) {
+        printf("Section - %2d ( %3d Items ) : ",i,size[i]);
+        for(int j=0;j<size[i];j++)
+            printf("%3d ",arr[i][j]);
+        printf("\n");
+    }
+    printf("Total Amount : %d",ans);
+}
+*/
