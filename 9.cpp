@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<time.h>
 #include<mpi.h>
+
 int main(int argc, char* argv[])
 {
 	int numtasks, rank, rc, count, next, prev, sz, inmsg;
@@ -26,7 +27,7 @@ int main(int argc, char* argv[])
 	}
 	MPI_Barrier(MPI_COMM_WORLD);
 	et = clock();
-	if (rank == 0) printf("Time taken by Blocking send/receive : %lf\n", (double)(et - st) / CLOCKS_PER_SEC);
+	if(rank==0) printf("Time taken by Blocking send/receive : %lf\n", (double)(et - st) / CLOCKS_PER_SEC);
 	MPI_Barrier(MPI_COMM_WORLD);
 	MPI_Request reqs[2];
 	MPI_Status stats[2];
