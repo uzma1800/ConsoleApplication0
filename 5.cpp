@@ -1,27 +1,27 @@
+#include<stdio.h>
 #include<stdlib.h>
 #include<time.h>
-#include<stdio.h>
 #include<omp.h>
 int main() {
 	int n, i;
 	time_t st, et;
 	st = clock();
 	printf("Enter the number of students : ");
-	scanf_s("%d", &n);
-	double arr[100000];
+	scanf("%d", &n);
+	double* arr = (double*)malloc(n * sizeof(double));
 	double arr_max = 0;
-#pragma omp parallel for
+	#pragma omp parallel for
 	for (i = 0; i < n; i++) {
 		srand(i);
-		arr[i] = (rand() % 10000) / 10;
+		arr[i] = (double)(rand() % 100)/10 ;
 	}
 	printf("CGPA of students : ");
 	for (i = 0; i < n; i++)
 		printf("%.2lf ", arr[i]);
 	printf("\n");
-#pragma omp parallel for
+	#pragma omp parallel for
 	for (i = 0; i < n; i++) {
-#pragma omp critical
+		#pragma omp critical
 		if (arr_max < arr[i])
 			arr_max = arr[i];
 	}
