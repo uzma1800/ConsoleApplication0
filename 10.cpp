@@ -2,18 +2,18 @@
 #include<stdlib.h>
 #include<time.h>
 #include<omp.h>
-int main() {
+void main() {
 	int n;
 	printf("Enter the dimension of square matrices : ");
-	scanf_s("%d", &n);
+	scanf("%d", &n);
 	int i = 0, j = 0, k = 0;
 	int** arr1 = (int**)malloc(n * sizeof(int*));
 	int** arr2 = (int**)malloc(n * sizeof(int*));
 	int** res = (int**)malloc(n * sizeof(int*));
 	omp_set_num_threads(64);
-#pragma omp parallel private(j)
+	#pragma omp parallel private(j)
 	{
-#pragma omp for
+		#pragma omp for
 		for (i = 0; i < n; i++) {
 			srand(i);
 			arr1[i] = (int*)malloc(n * sizeof(int));
@@ -27,9 +27,9 @@ int main() {
 	}
 	time_t st, et;
 	st = clock();
-#pragma omp parallel private(j,k)
+	#pragma omp parallel private(j,k)
 	{
-#pragma omp for
+		#pragma omp for
 		for (i = 0; i < n; i++) {
 			for (j = 0; j < n; j++) {
 				res[i][j] = 0;
@@ -50,5 +50,4 @@ int main() {
 	}
 	et = clock();
 	printf("Time taken by Sequential algorithm : %lf\n", (double)(et - st) / CLOCKS_PER_SEC);
-	return 0;
 }
